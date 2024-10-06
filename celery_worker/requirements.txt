@@ -1,0 +1,7 @@
+celery
+redis
+flower
+numpy
+librosa
+matplotlib
+psycopg2

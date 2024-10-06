@@ -1,0 +1,1 @@
+from celery_worker.celery_worker import app
