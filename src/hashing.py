@@ -2,9 +2,9 @@ import binascii
 import hashlib
 from typing import List, Tuple
 
-def generate_hashes(peaks:List[Tuple[int, int]], fan_value:int=10) -> List:
+def generate_hashes(peaks:List[Tuple[int, int]], fan_value:int=10) -> List[Tuple[str, int]]:
     '''
-    Generate hashes given a list of peaks and a fan_value.
+    Generate hashes given a list of peaks and a fan_value. The peaks in the list must be ordered by time.
     Each hash is generate using the time difference of two peaks and their frequenct bins
 
     Parameters:
@@ -12,9 +12,8 @@ def generate_hashes(peaks:List[Tuple[int, int]], fan_value:int=10) -> List:
             The tuples consist of two integers: the time bin and the frequency bin
         fan_value: an integer parameter describing how close two peaks have to create a hash.
             fan_value=10 means that each peak will be considered as a pair with its 9 closest neighbours.
-
     Returns:
-        A list
+        A list of tuples consisting of the string hash and the time bin of the first peak for the hash
     '''
     hashes = []
     for i in range(len(peaks)):
