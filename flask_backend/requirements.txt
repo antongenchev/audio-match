@@ -1,0 +1,9 @@
+celery
+redis
+flower
+numpy
+librosa
+matplotlib
+psycopg2
+flask
+flask_cors
