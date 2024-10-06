@@ -1,0 +1,88 @@
+services:
+  db:
+    image: postgres:15-alpine
+    container_name: postgres_container
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_HOST_AUTH_METHOD: scram-sha-256
+      POSTGRES_INITDB_ARGS: --auth-host=scram-sha-256
+    ports:
+      - "5430:5432"
+    volumes:
+      - my_dbdata:/var/lib/postgresql/data
+      - ./queries/init.sql:/docker-entrypoint-initdb.d/init.sql
+
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: pgadmin_container
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD}
+    ports:
+      - "8080:80"
+    depends_on:
+      - db
+
+  redis:
+    image: redis:latest
+    container_name: redis_container
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+
+  celery:
+    build:
+      context: ./
+      dockerfile: ./celery_worker/Dockerfile
+    container_name: celery_container
+    depends_on:
+      - redis
+      - db
+    volumes:
+      - ./celery_worker:/usr/src/app/celery_worker
+      - ./audio_files:/usr/src/app/audio_files
+      - ./temporary_audio_files:/usr/src/app/temporary_audio_files
+    environment:
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/0
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}
+    working_dir: /usr/src/app
+
+  flower:
+    container_name: flower_container
+    image: mher/flower
+    ports:
+      - "5555:5555"
+    command: ["celery", "--broker=redis://redis:6379/0", "flower", "-p", "5555:5555"]
+    depends_on:
+      - redis
+      - celery
+
+  flask:
+    build:
+      context: ./
+      dockerfile: ./flask_backend/Dockerfile
+    container_name: flask_container
+    ports:
+      - "5000:5000"
+    depends_on:
+      - db
+      - redis
+    volumes:
+      - ./flask_backend:/usr/src/app/flask_backend
+      - ./temporary_audio_files:/usr/src/app/temporary_audio_files
+    environment:
+      FLASK_ENV: development
+      CELERY_BROKER_URL: 'redis://redis:6379/0'
+      CELERY_RESULT_BACKEND: 'redis://redis:6379/0'
+      PYTHONUNBUFFERED: 1
+
+
+volumes:
+  my_dbdata:
+  redis_data:
