@@ -1,6 +1,7 @@
 import binascii
 import hashlib
 from typing import List, Tuple
+from src.database_connection import get_db_connection
 
 def generate_hashes(peaks:List[Tuple[int, int]], fan_value:int=10) -> List[Tuple[str, int]]:
     '''

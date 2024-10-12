@@ -6,14 +6,12 @@ def get_db_connection():
     '''
     Get a connection to the database
     '''
-    print('environment variables:    ', os.getenv('POSTGRES_DB'), os.getenv('POSTGRES_USER'),os.getenv('POSTGRES_PASSWORD'),os.getenv('DB_HOST'),os.getenv('DB_PORT'))
     try:
         connection = psycopg2.connect(
             dbname=os.getenv('POSTGRES_DB'),
             user=os.getenv('POSTGRES_USER'),
             password=os.getenv('POSTGRES_PASSWORD'),
-            host=os.getenv('DB_HOST'),
-            port=os.getenv('DB_PORT')
+            host=os.getenv('DB_HOST')
         )
         return connection
     except Exception as e:
