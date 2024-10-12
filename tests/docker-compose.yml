@@ -1,0 +1,15 @@
+services:
+  db:
+    image: postgres  # You can use the latest version or specify a version
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}       # Change as needed
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD} # Change as needed
+      POSTGRES_DB: ${POSTGRES_DB}    # Change as needed
+    ports:
+      - "5432:5432"              # Expose PostgreSQL on port 5432
+    volumes:
+      - pgdata13:/var/lib/postgresql/data  # Persist data in a Docker volume
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+
+volumes:
+  pgdata13:
