@@ -30,3 +30,22 @@ def generate_hashes(peaks:List[Tuple[int, int]], fan_value:int=10) -> List[Tuple
                 h = hashlib.sha1(f"{str(f1)}{str(f2)}{str(t_delta)}".encode('utf-8'))
                 hashes.append((h.hexdigest(), t1)) # sha1 hash = 20 bytes -> 40 hexadecimal symbols
     return hashes
+
+def save_hashes(audio_id:int, hashes:List[Tuple[str, int]]):
+    '''
+    Save a list of hashes to the database
+
+    Parameters:
+        audio_id: the id of the song in the database
+        hashes: a list of tuples. Each tuple consisting of a hash and a time offset
+    '''
+    with get_db_connection() as connection:
+        try:
+            cursor = connection.cursor()
+            # Turn the hashes from strings to bytes and add the song and insert them in the audio_hashes table
+            hashes_with_song_id = [(audio_id, binascii.unhexlify(hash_value), time_offset) for hash_value, time_offset in hashes]
+            cursor.executemany("INSERT INTO audio_fingerprints (audio_id, fingerprint, time_offset) VALUES (%s, %s, %s)",
+                               hashes_with_song_id)
+            connection.commit()
+        finally:
+            cursor.close()
