@@ -12,3 +12,6 @@ CREATE TABLE audio_fingerprints (
     time_offset INTEGER NOT NULL
 );
 
+
+-- Insert data into the audios table
+INSERT INTO audios (title) VALUES ('Test Audio Init');
