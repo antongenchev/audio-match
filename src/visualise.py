@@ -15,3 +15,11 @@ def plot_spectrogram(spectrogram:np.ndarray, sr:int=44100):
     plt.xlabel('Time (s)')
     plt.ylabel('Frequency (Hz)')
     plt.show()
+
+def plot_spectrogram_peaks(spectrogram:np.ndarray, peaks:np.ndarray, sr:int=44100):
+    plt.figure(figsize=(14, 5))
+    librosa.display.specshow(spectrogram, sr=sr, x_axis="time", y_axis="hz")
+    plt.colorbar()
+    peaks_tf = peaks_ij_to_tf(peaks)
+    plt.scatter(peaks_tf[:,1], peaks_tf[:,0], color='red', marker='o', s=10)  # Red dots for peaks
+    plt.show()
